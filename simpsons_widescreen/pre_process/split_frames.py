@@ -11,7 +11,7 @@ def split_widescreen_frames(widescreen: np.array) -> Tuple[np.array, np.array]:
     training = _grab_edges(centre)
     edges = _grab_edges(widescreen)
 
-    return training, edges
+    return training, edges, centre
 
 
 def _grab_edges(widescreen: np.array) -> np.array:

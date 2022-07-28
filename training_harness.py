@@ -5,7 +5,7 @@ def main():
     params = {
         "input_training": "data/inputs/training_video",
         "input_prediction": "data/inputs/prediction_video/",
-        "output_prediction": "data/outputs/prediction_video/",
+        "output_prediction": "data/outputs/",
     }
 
     simpsons_widescreen(params)

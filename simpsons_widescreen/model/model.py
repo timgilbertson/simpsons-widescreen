@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, BatchNormalization, LeakyReLU, Reshape, Conv2DTranspose
+from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dropout, MaxPooling2D
 
 
 def build_model(sequence_length: int, input_size: Tuple[int, int], output_size: Tuple[int, int] = (None, 720, 320, 3)) -> Sequential:
@@ -12,26 +12,49 @@ def build_model(sequence_length: int, input_size: Tuple[int, int], output_size: 
     return model
 
 
-def make_generator_model(output_shape: Tuple[None, int, int, int] = (720, 320, 3)):
-    model = Sequential()
-    model.add(Dense(3, use_bias=False, input_shape=(output_shape)))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU())
+def make_generator_model(in_shape: Tuple[None, int, int, int] = (144, 64, 3)):
+    model = Sequential([
+        Conv2D(32,(3,3),activation="relu",input_shape=in_shape,padding='same'),
+        Dropout(0.1),
+        Conv2D(32,(3,3),activation="relu",input_shape=in_shape,padding='same'),
+        MaxPooling2D((2,2)),
+        
 
-    # model.add(Reshape((180, 80, 32)))
-    # assert model.output_shape == (None, 180, 80, 32)  # Note: None is the batch size
+        Conv2D(64,  kernel_size = (3,3), activation='relu',padding='same'),
+        Dropout(0.1),
+        Conv2D(64,(3,3),activation="relu",input_shape=in_shape,padding='same'),
+        MaxPooling2D((2, 2)),
+    
 
-    model.add(Conv2DTranspose(16, (5, 5), strides=(1, 1), padding='same', use_bias=False))
-    # assert model.output_shape == (None, 180, 80, 16)
-    model.add(BatchNormalization())
-    model.add(LeakyReLU())
+        Conv2D(128,  kernel_size = (3,3), activation='relu',padding='same'),
+        Dropout(0.1),
+        Conv2D(128,(3,3),activation="relu",input_shape=in_shape,padding='same'),
+        MaxPooling2D((2, 2)),
+        Conv2D(256,  kernel_size = (3,3), activation='relu',padding='same'),
+        MaxPooling2D((2, 2)),
+    
+        Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same'),
+        Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
+        Dropout(0.2),
+        Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
 
-    model.add(Conv2DTranspose(8, (5, 5), strides=(2, 2), padding='same', use_bias=False))
-    # assert model.output_shape == (None, 360, 160, 8)
-    model.add(BatchNormalization())
-    model.add(LeakyReLU())
+        Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same'),
+        Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
+        Dropout(0.2),
+        Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
+    
+        Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same'),
+        Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
+        Dropout(0.2),
+        Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
 
-    model.add(Conv2DTranspose(3, (5, 5), strides=(1, 1), padding='same', use_bias=False, activation='linear'))
+        Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same'),
+        Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
+        Dropout(0.2),
+        Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same'),
+
+        Conv2D(3, (1, 1), activation='linear')
+    ])
 
     model.compile(optimizer="adam", loss="mse")
 

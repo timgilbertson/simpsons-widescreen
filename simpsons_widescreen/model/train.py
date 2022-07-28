@@ -10,8 +10,10 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
-def train_model(training_features: np.array, training_targets: np.array) -> Sequential:
-    untrained_model = build_model(5, input_size=(720, 960))
+def train_model(training_features: np.array, training_targets: np.array, untrained_model: Sequential = None) -> Sequential:
+    if not untrained_model:
+        untrained_model = build_model(5, input_size=(720, 960))
+
     trained_model = _train_neural_network(untrained_model, training_features, training_targets)
 
     return trained_model
@@ -20,7 +22,7 @@ def train_model(training_features: np.array, training_targets: np.array) -> Sequ
 def _train_neural_network(model: Sequential, training_features: np.array, training_targets: np.array) -> Sequential:
     normalized_images = (training_features - 127.5) / 127.5
 
-    model.fit(normalized_images, training_targets, epochs=100, validation_split=0.15)
+    model.fit(normalized_images, training_targets, epochs=10, validation_split=0.15)
 
     return model
 
