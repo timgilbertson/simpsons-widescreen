@@ -2,14 +2,18 @@ from typing import Tuple
 
 import numpy as np
 
-from ..constants import FOUR_THREE_WIDTH, EDGE_WIDTH
+from ..constants import EDGE_WIDTH
 
 
-def split_widescreen_frames(widescreen: np.array) -> Tuple[np.array, np.array]:
+def split_widescreen_frames(widescreen: np.array, prediction: bool = False) -> Tuple[np.array, np.array]:
     centre = widescreen[:, :, EDGE_WIDTH:-EDGE_WIDTH, :]
 
-    training = _grab_edges(centre)
-    edges = _grab_edges(widescreen)
+    if prediction:
+        training = _grab_edges(widescreen)
+        edges = np.zeros((centre.shape[0], centre.shape[1], 2 * EDGE_WIDTH, 3))
+    else:
+        training = _grab_edges(centre)
+        edges = _grab_edges(widescreen)
 
     return training, edges, centre
 

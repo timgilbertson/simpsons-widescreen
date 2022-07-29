@@ -5,7 +5,7 @@ from typing import Dict
 from tqdm import tqdm
 
 from .io.inbound import read_video, read_episode
-from .io.outbound import write_video
+from .io.outbound import write_video, write_trained_model
 from .model.train import train_model
 from .pre_process.split_frames import split_widescreen_frames
 from .validation.create_validation import split_validation
@@ -35,14 +35,20 @@ def simpsons_widescreen_ext(params: Dict[str, str]):
 
 
 def simpsons_widescreen(params: Dict[str, str], model = None):
+    file_list = os.listdir(params["input_prediction"])
+    for file_name in file_list:
+        prediction_video = read_episode(params["input_prediction"] + "/" + file_name, "192x144")
+
+    prediction, prediction_edges, _ = split_widescreen_frames(prediction_video, prediction=True)
+
     file_list = os.listdir(params["input_training"])
     count = 1
     for file_name in file_list:
         logging.info(f"Loading Episode {count} of {len(file_list)}")
-        widescreen_arrays = read_episode(params["input_training"] + "/" + file_name)
+        widescreen_arrays = read_episode(params["input_training"] + "/" + file_name, "256x144")
 
         logging.info("Splitting Widescreens")
-        training, edges, centre = split_widescreen_frames(widescreen_arrays)
+        training, edges, _ = split_widescreen_frames(widescreen_arrays)
 
         logging.info("Splitting Training and Validation Sets")
         train_features, test_features, train_targets, test_targets = split_validation(training, edges)
@@ -51,9 +57,10 @@ def simpsons_widescreen(params: Dict[str, str], model = None):
         model = train_model(train_features, train_targets, model)
 
         logging.info("Validating Trained Neural Network")
-        predicted_targets = validate_trained_model(model, test_features, test_targets, training)
+        predicted_targets = validate_trained_model(model, test_features, test_targets, prediction)
 
         logging.info("Writing Out Predicted Video")
-        write_video(params["output_prediction"], predicted_targets, centre, edges)
+        write_video(params["output_prediction"], predicted_targets, prediction_video, prediction_edges)
+        write_trained_model(params["output_prediction"], model)
 
         count += 1
