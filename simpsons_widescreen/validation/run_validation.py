@@ -13,7 +13,7 @@ def validate_trained_model(model: Sequential, testing_features: np.array, testin
     r2 = r2_score(testing_targets.ravel(), predicted_targets.ravel())
     logging.info(f"R2 Score: {r2}")
 
-    return predict(model, all_features).astype(int)
+    return predict(model, all_features).astype(np.int16)
 
 
 def predict(model: Sequential, video_array: np.array) -> np.array:

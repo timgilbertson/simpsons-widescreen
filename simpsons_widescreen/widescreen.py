@@ -37,7 +37,7 @@ def simpsons_widescreen_ext(params: Dict[str, str]):
 def simpsons_widescreen(params: Dict[str, str], model = None):
     file_list = os.listdir(params["input_prediction"])
     for file_name in file_list:
-        prediction_video = read_episode(params["input_prediction"] + "/" + file_name, "192x144")
+        prediction_video = read_episode(params["input_prediction"] + "/" + file_name, "384x288", 15)
 
     prediction, prediction_edges, _ = split_widescreen_frames(prediction_video, prediction=True)
 
@@ -45,13 +45,21 @@ def simpsons_widescreen(params: Dict[str, str], model = None):
     count = 1
     for file_name in file_list:
         logging.info(f"Loading Episode {count} of {len(file_list)}")
-        widescreen_arrays = read_episode(params["input_training"] + "/" + file_name, "256x144")
+        try:
+            widescreen_arrays = read_episode(params["input_training"] + "/" + file_name, "512x288", 2)
+        except:
+            count += 1
+            continue
 
         logging.info("Splitting Widescreens")
-        training, edges, _ = split_widescreen_frames(widescreen_arrays)
+        training, edges, centre = split_widescreen_frames(widescreen_arrays)
 
         logging.info("Splitting Training and Validation Sets")
         train_features, test_features, train_targets, test_targets = split_validation(training, edges)
+
+        if model:
+            logging.info("Validating on Unseen Episode")
+            validate_trained_model(model, test_features, test_targets, prediction)
 
         logging.info("Training Neural Network")
         model = train_model(train_features, train_targets, model)

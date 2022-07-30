@@ -12,18 +12,17 @@ def build_model(sequence_length: int, input_size: Tuple[int, int], output_size: 
     return model
 
 
-def make_generator_model(in_shape: Tuple[None, int, int, int] = (144, 64, 3)):
+def make_generator_model(in_shape: Tuple[None, int, int, int] = (288, 128, 3)):
     model = Sequential([
-        Conv2D(128,(3,3),activation="relu",input_shape=in_shape,padding='same'),
+        Conv2D(32,(3,3),activation="relu",input_shape=in_shape,padding='same'),
         Dropout(0.1),
-        Conv2D(128,(3,3),activation="relu",input_shape=in_shape,padding='same'),
+        Conv2D(32,(3,3),activation="relu",input_shape=in_shape,padding='same'),
         MaxPooling2D((2,2)),
 
         Conv2D(64,  kernel_size = (3,3), activation='relu',padding='same'),
         Dropout(0.1),
         Conv2D(64,(3,3),activation="relu",input_shape=in_shape,padding='same'),
         MaxPooling2D((2, 2)),
-    
 
         Conv2D(128,  kernel_size = (3,3), activation='relu',padding='same'),
         Dropout(0.1),

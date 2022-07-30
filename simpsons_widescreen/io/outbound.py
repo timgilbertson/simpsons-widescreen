@@ -12,7 +12,7 @@ def write_video(video_path, predicted_targets, centre, edges):
 def _write_video(video_path, file_name, centre, edges):
     left_edge = edges[:, :, :EDGE_WIDTH, :]
     right_edge = edges[:, :, -EDGE_WIDTH:, :]
-    video_data = np.dstack([left_edge, centre, right_edge])
+    video_data = np.dstack([left_edge, centre, right_edge]).astype(np.int16)
 
     vwrite(fname=video_path + f"{file_name}.mpg", videodata=video_data)
 

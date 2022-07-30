@@ -14,9 +14,9 @@ def read_video(video_path: str) -> np.array:
     return np.asarray(frames)
 
 
-def read_episode(file_name: str, input_shape: str) -> np.array:
+def read_episode(file_name: str, input_shape: str, frame_rate: int = 15) -> np.array:
     frames = []
-    video = vreader(file_name, num_frames=10000, outputdict={"-r": "5", "-s": input_shape})
+    video = vreader(file_name, num_frames=5000, outputdict={"-r": str(frame_rate), "-s": input_shape})
     for frame in video:
         frames.append(frame)
 
