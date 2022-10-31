@@ -3,35 +3,33 @@ from typing import Tuple
 import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.data import Dataset
+from tqdm import tqdm
 
-from .model import build_model
+from .model import train_step, EPOCHS, create_dataset
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
-def train_model(training_features: np.array, training_targets: np.array, untrained_model: Sequential = None) -> Sequential:
-    if not untrained_model:
-        untrained_model = build_model(5, input_size=(720, 960))
+def train_model(
+    training_features: np.ndarray,
+    training_targets: np.ndarray,
+    generator: Sequential,
+    discriminator: Sequential
+) -> Sequential:
+    """Train a GAN"""
+    scaled_images = _scale_images(training_features)
+    dataset = create_dataset(scaled_images, training_targets)
 
-    trained_model = _train_neural_network(untrained_model, training_features, training_targets)
+    for _ in tqdm(range(EPOCHS)):
+        for image_batch in dataset:
+            features = image_batch[0]
+            targets = image_batch[1]
+            train_step(features, targets, generator, discriminator)
 
-    return trained_model
-    
-
-def _train_neural_network(model: Sequential, training_features: np.array, training_targets: np.array) -> Sequential:
-    normalized_images = (training_features - 127.5) / 127.5
-
-    model.fit(normalized_images, training_targets, epochs=15, validation_split=0.15)
-
-    return model
+    return generator, discriminator
 
 
-def batch_generator(features: np.array, targets: np.array, train: bool = True, window_size: int = 5) -> Tuple[np.array, np.array]:
-    batched_features, batched_targets = [], []
-    for batch in range(features.shape[0] - window_size):
-        batched_features.append(features[batch:batch + window_size])
-        if train:
-            batched_targets.append(targets[batch])
-
-    return batched_features, batched_targets
+def _scale_images(images: np.ndarray) -> np.ndarray:
+    """Simple pixel value scaler between -1 and 1"""
+    return (images - 127.5) / 127.5

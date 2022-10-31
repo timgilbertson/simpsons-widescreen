@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from .io.inbound import read_video, read_episode
 from .io.outbound import write_video, write_trained_model
+from .model.model import make_discriminator_model, make_generator_model
 from .model.train import train_model
 from .pre_process.split_frames import split_widescreen_frames
 from .validation.create_validation import split_validation
@@ -41,6 +42,9 @@ def simpsons_widescreen(params: Dict[str, str], model = None):
 
     prediction, prediction_edges, _ = split_widescreen_frames(prediction_video, prediction=True)
 
+    generator = make_generator_model()
+    discriminator = make_discriminator_model()
+
     file_list = os.listdir(params["input_training"])
     count = 1
     for file_name in file_list:
@@ -57,18 +61,17 @@ def simpsons_widescreen(params: Dict[str, str], model = None):
         logging.info("Splitting Training and Validation Sets")
         train_features, test_features, train_targets, test_targets = split_validation(training, edges)
 
-        if model:
-            logging.info("Validating on Unseen Episode")
-            validate_trained_model(model, test_features, test_targets, prediction)
+        logging.info("Validating on Unseen Episode")
+        validate_trained_model(generator, test_features, test_targets, prediction)
 
         logging.info("Training Neural Network")
-        model = train_model(train_features, train_targets, model)
+        generator, discriminator = train_model(train_features, train_targets, generator, discriminator)
 
         logging.info("Validating Trained Neural Network")
-        predicted_targets = validate_trained_model(model, test_features, test_targets, prediction)
+        predicted_targets = validate_trained_model(generator, test_features, test_targets, prediction)
 
         logging.info("Writing Out Predicted Video")
         write_video(params["output_prediction"], predicted_targets, prediction_video, prediction_edges)
-        write_trained_model(params["output_prediction"], model)
+        write_trained_model(params["output_prediction"], generator)
 
         count += 1
