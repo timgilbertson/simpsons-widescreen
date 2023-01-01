@@ -68,7 +68,7 @@ def simpsons_widescreen(params: Dict[str, str], model = None):
         predicted_targets = validate_trained_model(model, test_features, test_targets, prediction)
 
         logging.info("Writing Out Predicted Video")
-        write_video(params["output_prediction"], predicted_targets, prediction_video, prediction_edges)
+        write_video(params["output_prediction"], predicted_targets, prediction_video, prediction_edges, "predicted_video")
         write_trained_model(params["output_prediction"], model)
 
         count += 1

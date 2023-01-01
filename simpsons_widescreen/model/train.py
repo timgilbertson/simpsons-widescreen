@@ -22,7 +22,7 @@ def train_model(training_features: np.array, training_targets: np.array, untrain
 def _train_neural_network(model: Sequential, training_features: np.array, training_targets: np.array) -> Sequential:
     normalized_images = (training_features - 127.5) / 127.5
 
-    model.fit(normalized_images, training_targets, epochs=15, validation_split=0.15)
+    model.fit(normalized_images, training_targets, epochs=15)
 
     return model
 
