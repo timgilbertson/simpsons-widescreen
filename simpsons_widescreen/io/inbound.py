@@ -17,7 +17,7 @@ def read_video(video_path: str) -> np.array:
 
 def read_episode(file_name: str, input_shape: str, frame_rate: int = 1, full: bool = False) -> np.array:
     frames = []
-    num_frames = 1000 if not full else None
+    num_frames = 1000 if not full else 5000
     video = vreader(file_name, num_frames=num_frames, outputdict={"-r": str(frame_rate), "-s": input_shape})
     for frame in video:
         frames.append(frame)

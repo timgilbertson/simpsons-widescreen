@@ -1,4 +1,4 @@
-from simpsons_widescreen.widescreen import simpsons_widescreen
+from simpsons_widescreen.generate_widescreen import simpsons_widescreen
 
 
 def main():
