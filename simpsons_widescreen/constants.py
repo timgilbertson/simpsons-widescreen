@@ -1,0 +1,1 @@
+EDGE_WIDTH = 64
