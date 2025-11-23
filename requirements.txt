@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+imageio
+imageio-ffmpeg
+opencv-python
+tensorflow
+tqdm
+pdbpp
